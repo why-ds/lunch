@@ -63,7 +63,15 @@ public class ShopExcelController {
                     shop.setFoodTypeCd(getCellValue(row.getCell(2)));
                     shop.setBizHourCd(getCellValue(row.getCell(3)));
                     shop.setWalkDistCd(getCellValue(row.getCell(4)));
-                    shop.setRmk(getCellValue(row.getCell(5)));
+                    Cell latCell = row.getCell(5);
+                    if (latCell != null && latCell.getCellType() == CellType.NUMERIC) {
+                        shop.setLatitude(latCell.getNumericCellValue());
+                    }
+                    Cell lngCell = row.getCell(6);
+                    if (lngCell != null && lngCell.getCellType() == CellType.NUMERIC) {
+                        shop.setLongitude(lngCell.getNumericCellValue());
+                    }
+                    shop.setRmk(getCellValue(row.getCell(7)));
                     shop.setCloseYn("N");
                     shop.setRegId("EXCEL_UPLOAD");
                     shop.setRegDt(java.time.LocalDateTime.now());
