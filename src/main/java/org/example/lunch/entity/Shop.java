@@ -54,4 +54,12 @@ public class Shop {
 
     @Column(name = "mod_dt")
     private LocalDateTime modDt;
+
+    /** 위도 */
+    @Column(name = "latitude")
+    private Double latitude;
+
+    /** 경도 */
+    @Column(name = "longitude")
+    private Double longitude;
 }
