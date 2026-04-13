@@ -20,11 +20,15 @@ public class ShopController {
     private final ShopRepository shopRepository;
 
     /**
-     * 전체 가게 목록 조회
+     * 가게 목록 조회 (구역 필터 가능)
      * GET /api/shops
+     * GET /api/shops?areaCd=A01
      */
     @GetMapping
-    public List<Shop> getShops() {
+    public List<Shop> getShops(@RequestParam(required = false) String areaCd) {
+        if (areaCd != null && !areaCd.isEmpty()) {
+            return shopRepository.findByAreaCd(areaCd);
+        }
         return shopRepository.findAll();
     }
 }
