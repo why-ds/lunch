@@ -33,5 +33,5 @@ jobs:
           echo "$SERVER_KEY" > key.pem
           chmod 600 key.pem
           scp -o StrictHostKeyChecking=no -i key.pem build/libs/lunch-0.0.1-SNAPSHOT.jar $SERVER_USER@$SERVER_HOST:/home/ubuntu/
-          ssh -o StrictHostKeyChecking=no -i key.pem $SERVER_USER@$SERVER_HOST "pkill -f 'java -jar' || true; sleep 2; cd /home/ubuntu; nohup java -jar lunch-0.0.1-SNAPSHOT.jar > app.log 2>&1 & sleep 3; echo done"
+          ssh -o StrictHostKeyChecking=no -i key.pem $SERVER_USER@$SERVER_HOST "pkill -f 'java -jar' || true && sleep 2 && cd /home/ubuntu && nohup java -jar lunch-0.0.1-SNAPSHOT.jar > app.log 2>&1 & disown && sleep 3 && echo done" || true
           rm -f key.pem
