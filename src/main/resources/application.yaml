@@ -6,7 +6,7 @@ spring:
     name: lunch
 
   datasource:
-    url: jdbc:postgresql://49.50.136.141:5432/lunch
+    url: jdbc:postgresql://localhost:5432/lunch    # 서버에서는 localhost
     username: postgres
     password: yds#871219
     driver-class-name: org.postgresql.Driver
