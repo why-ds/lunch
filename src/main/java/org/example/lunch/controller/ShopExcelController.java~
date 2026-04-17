@@ -44,15 +44,11 @@ public class ShopExcelController {
                 try {
                     String shopNm = getCellValue(row.getCell(0));
                     if (shopNm == null || shopNm.trim().isEmpty()) continue;
-                    if (shopNm.startsWith("※")) continue;
-
-                    String foodTypeCd = getCellValue(row.getCell(2));
-                    if (foodTypeCd == null || foodTypeCd.trim().isEmpty()) continue;
 
                     Shop shop = new Shop();
                     shop.setShopNm(shopNm.trim());
                     shop.setStationCd(getCellValue(row.getCell(1)));
-                    shop.setFoodTypeCd(foodTypeCd);
+                    shop.setFoodTypeCd(getCellValue(row.getCell(2)));
 
                     String address = getCellValue(row.getCell(3));
                     shop.setAddress(address);
