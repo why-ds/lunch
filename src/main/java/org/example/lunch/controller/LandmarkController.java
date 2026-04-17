@@ -143,4 +143,35 @@ public class LandmarkController {
                 return cell.toString().trim();
         }
     }
+    /**
+     * 랜드마크 단건 등록
+     * POST /api/landmarks/single
+     */
+    @PostMapping("/single")
+    public ResponseEntity<Map<String, Object>> createLandmark(@RequestBody Landmark landmark) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            if (landmark.getAddress() != null && !landmark.getAddress().isEmpty()) {
+                Map<String, String> geoInfo = kakaoGeoService.getGeoInfo(landmark.getAddress());
+                if (geoInfo != null) {
+                    if (geoInfo.get("latitude") != null) landmark.setLatitude(Double.parseDouble(geoInfo.get("latitude")));
+                    if (geoInfo.get("longitude") != null) landmark.setLongitude(Double.parseDouble(geoInfo.get("longitude")));
+                    landmark.setSidoCd(geoInfo.getOrDefault("sido_cd", ""));
+                    landmark.setGugunCd(geoInfo.getOrDefault("gugun_cd", ""));
+                    landmark.setDongCd(geoInfo.getOrDefault("dong_cd", ""));
+                }
+            }
+            landmark.setUseYn("Y");
+            landmark.setSortOrd(0);
+            landmark.setRegId("ADMIN");
+            landmark.setRegDt(java.time.LocalDateTime.now());
+            landmarkRepository.save(landmark);
+            result.put("success", true);
+            result.put("message", "등록 완료: " + landmark.getLandmarkNm());
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "등록 실패: " + e.getMessage());
+        }
+        return ResponseEntity.ok(result);
+    }
 }
