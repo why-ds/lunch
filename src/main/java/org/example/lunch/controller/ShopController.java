@@ -23,4 +23,15 @@ public class ShopController {
         }
         return ResponseEntity.ok(shopRepository.findAll());
     }
+    /**
+     * 랜드마크 반경 검색
+     * GET /api/shops/nearby?lat=37.5607&lng=126.9738&radius=500
+     */
+    @GetMapping("/nearby")
+    public List<Shop> getNearbyShops(
+            @RequestParam Double lat,
+            @RequestParam Double lng,
+            @RequestParam(defaultValue = "500") int radius) {
+        return shopRepository.findNearbyShops(lat, lng, radius);
+    }
 }
