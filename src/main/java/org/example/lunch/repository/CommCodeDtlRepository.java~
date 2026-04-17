@@ -1,0 +1,4 @@
+package org.example.lunch.repository;
+
+public class CommCodeDtlRepository {
+}
