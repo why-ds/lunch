@@ -4,17 +4,24 @@ import org.example.lunch.entity.SubwayStation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
+@Repository
 public interface SubwayStationRepository extends JpaRepository<SubwayStation, Integer> {
 
-    // 식당이 존재하는 호선만 조회
+    /** * 1. 호선 필터용: 식당(Shop)이 하나라도 등록된 역이 포함된 호선만 중복 없이 조회합니다.
+     *
+     */
     @Query("SELECT DISTINCT s.lineNm FROM SubwayStation s " +
             "WHERE s.stationCd IN (SELECT DISTINCT sh.stationCd FROM Shop sh) " +
             "ORDER BY s.lineNm ASC")
     List<String> findLinesWithShops();
 
-    // 특정 호선 내 식당이 존재하는 역만 조회
+    /** * 2. 역명 필터용: 특정 호선 내에서 실제로 식당(Shop)이 등록된 역들만 조회합니다.
+     *
+     */
     @Query("SELECT s FROM SubwayStation s " +
             "WHERE s.lineNm = :lineNm " +
             "AND s.stationCd IN (SELECT DISTINCT sh.stationCd FROM Shop sh) " +

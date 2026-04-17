@@ -14,14 +14,18 @@ public class SubwayStationController {
 
     private final SubwayStationRepository subwayStationRepository;
 
+    /** 식당이 있는 호선 목록 조회 */
     @GetMapping("/lines")
     public List<String> getLines() {
-        return subwayStationRepository.findAllDistinctLines();
+        return subwayStationRepository.findLinesWithShops();
     }
 
+    /** 해당 호선 내 식당이 있는 역 목록 조회 */
     @GetMapping
     public List<SubwayStation> getStationsByLine(@RequestParam String lineNm) {
-        if (lineNm == null || lineNm.trim().isEmpty()) return List.of();
-        return subwayStationRepository.findByLineNmOrderByStationNmAsc(lineNm.trim());
+        if (lineNm == null || lineNm.trim().isEmpty()) {
+            return List.of();
+        }
+        return subwayStationRepository.findStationsByLineWithShops(lineNm.trim());
     }
 }
