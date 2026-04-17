@@ -26,12 +26,12 @@ public class CommCodeDtl {
     @Column(name = "grp_cd", nullable = false, length = 20)
     private String grpCd;
 
-    /** 상세코드 */
-    @Column(name = "dtl_cd", nullable = false, length = 20)
+    /** 상세코드 (수정: DB 컬럼명이 cd 임) */
+    @Column(name = "cd", nullable = false, length = 20)
     private String dtlCd;
 
-    /** 상세코드명 */
-    @Column(name = "dtl_nm", nullable = false, length = 100)
+    /** 상세코드명 (수정: DB 컬럼명이 cd_nm 임) */
+    @Column(name = "cd_nm", nullable = false, length = 100)
     private String dtlNm;
 
     /** 사용여부 (Y/N) */

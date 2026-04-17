@@ -7,18 +7,18 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * 지하철역 엔티티
- * - 테이블명: subwaystation
- */
 @Entity
-@Table(name = "subwaystation")
+@Table(name = "subway_station") // 🚨 테이블명 언더바(_) 추가!
 @Getter
 @NoArgsConstructor
 public class SubwayStation {
 
-    /** 지하철역 코드 (PK) */
+    /** 일련번호 (진짜 PK) */
     @Id
+    @Column(name = "station_seq", nullable = false)
+    private Integer stationSeq;
+
+    /** 지하철역 코드 */
     @Column(name = "station_cd", length = 20, nullable = false)
     private String stationCd;
 

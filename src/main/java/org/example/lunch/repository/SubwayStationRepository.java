@@ -8,12 +8,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SubwayStationRepository extends JpaRepository<SubwayStation, String> {
+// 🚨 ID 타입을 String에서 Integer로 변경!
+public interface SubwayStationRepository extends JpaRepository<SubwayStation, Integer> {
 
-    /** 호선 필터용: DB에 있는 모든 호선명을 중복 없이 오름차순으로 조회 */
+    // 호선 목록 (중복 제거)
     @Query("SELECT DISTINCT s.lineNm FROM SubwayStation s ORDER BY s.lineNm ASC")
     List<String> findAllDistinctLines();
 
-    /** 역명 필터용: 특정 호선에 속한 역 목록을 조회 */
+    // 특정 호선의 역 목록
     List<SubwayStation> findByLineNmOrderByStationNmAsc(String lineNm);
 }
