@@ -77,6 +77,13 @@ public class ShopExcelController {
                     shop.setRegId("EXCEL_UPLOAD");
                     shop.setRegDt(java.time.LocalDateTime.now());
 
+                    // 중복 체크 (가게명 + 주소)
+                    if (shopRepository.existsByShopNmAndAddress(shopNm.trim(), address)) {
+                        failCount++;
+                        errors.add((i + 1) + "행: 이미 등록된 가게 - " + shopNm);
+                        continue;
+                    }
+
                     shopList.add(shop);
                     successCount++;
                 } catch (Exception e) {

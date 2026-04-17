@@ -96,6 +96,13 @@ public class LandmarkController {
                     landmark.setRegId("EXCEL_UPLOAD");
                     landmark.setRegDt(java.time.LocalDateTime.now());
 
+                    // 중복 체크 (랜드마크코드)
+                    if (landmarkRepository.existsByLandmarkCd(landmarkCd.trim())) {
+                        failCount++;
+                        errors.add((i + 1) + "행: 이미 등록된 랜드마크 - " + landmarkNm);
+                        continue;
+                    }
+
                     landmarkList.add(landmark);
                     successCount++;
                 } catch (Exception e) {

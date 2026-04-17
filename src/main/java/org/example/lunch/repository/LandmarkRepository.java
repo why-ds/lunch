@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface LandmarkRepository extends JpaRepository<Landmark, Integer> {
     List<Landmark> findByUseYnOrderBySortOrd(String useYn);
+    boolean existsByLandmarkCd(String landmarkCd);
 }

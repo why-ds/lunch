@@ -24,5 +24,4 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
     List<Shop> findNearbyShops(@Param("lat") Double lat,
                                @Param("lng") Double lng,
                                @Param("radius") int radius);
-    boolean existsByShopNmAndAddress(String shopNm, String address);
 }
