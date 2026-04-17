@@ -17,11 +17,6 @@ public class ShopController {
 
     private final ShopRepository shopRepository;
 
-    /**
-     * 가게 목록 조회 (역코드 필터 가능)
-     * GET /api/shops
-     * GET /api/shops?stationCd=ST0132
-     */
     @GetMapping
     public List<Shop> getShops(@RequestParam(required = false) String stationCd) {
         if (stationCd != null && !stationCd.isEmpty()) {
