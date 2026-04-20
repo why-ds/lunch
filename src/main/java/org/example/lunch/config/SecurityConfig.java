@@ -25,21 +25,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 누구나 접근 가능
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/shops/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/subway-stations/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/landmarks/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/codes/**").permitAll()
-
-                        // 관리자만 접근 가능 (업로드, 등록, 수정, 삭제)
                         .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
-
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
