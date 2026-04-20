@@ -78,8 +78,24 @@ public class ShopExcelController {
                             shop.setStationCd(stationInput);
                         } else {
                             // 텍스트로 입력 (호선 + 역명)
+                            String stationNmClean = stationInput.trim().replaceAll("역$", "");
+
+                            // 정확히 매칭 시도
                             SubwayStation station = subwayStationRepository
                                     .findByLineNmAndStationNm(lineInput.trim(), stationInput.trim());
+
+                            // 못 찾으면 "역" 떼고 재시도
+                            if (station == null) {
+                                station = subwayStationRepository
+                                        .findByLineNmAndStationNm(lineInput.trim(), stationNmClean);
+                            }
+
+                            // 그래도 못 찾으면 "역" 붙여서 재시도
+                            if (station == null) {
+                                station = subwayStationRepository
+                                        .findByLineNmAndStationNm(lineInput.trim(), stationNmClean + "역");
+                            }
+
                             if (station != null) {
                                 shop.setStationCd(station.getStationCd());
                             } else {
