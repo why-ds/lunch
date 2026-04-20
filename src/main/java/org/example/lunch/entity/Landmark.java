@@ -22,9 +22,6 @@ public class Landmark {
     @Column(name = "landmark_seq")
     private Integer landmarkSeq;
 
-    @Column(name = "landmark_cd", nullable = false, length = 20)
-    private String landmarkCd;
-
     @Column(name = "landmark_nm", nullable = false, length = 100)
     private String landmarkNm;
 

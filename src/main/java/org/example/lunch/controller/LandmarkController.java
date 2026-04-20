@@ -65,15 +65,17 @@ public class LandmarkController {
                     if (landmarkCd == null || landmarkCd.trim().isEmpty()) continue;
                     if (landmarkCd.startsWith("※")) continue;
 
-                    String landmarkNm = getCellValue(row.getCell(1));
+                    String landmarkNm = getCellValue(row.getCell(0));
                     if (landmarkNm == null || landmarkNm.trim().isEmpty()) continue;
+                    if (landmarkNm.startsWith("※")) continue;
+
+                    String address = getCellValue(row.getCell(1));
 
                     Landmark landmark = new Landmark();
-                    landmark.setLandmarkCd(landmarkCd.trim());
                     landmark.setLandmarkNm(landmarkNm.trim());
 
                     // 주소로 카카오 API 호출
-                    String address = getCellValue(row.getCell(2));
+                    //String address = getCellValue(row.getCell(2));
                     landmark.setAddress(address);
 
                     if (address != null && !address.isEmpty()) {
@@ -99,12 +101,16 @@ public class LandmarkController {
                     landmark.setRegId("EXCEL_UPLOAD");
                     landmark.setRegDt(java.time.LocalDateTime.now());
 
-                    // 중복 체크 (랜드마크코드)
-                    if (landmarkRepository.existsByLandmarkCd(landmarkCd.trim())) {
+                    // 중복 체크 (이름 + 주소)
+                    if (landmarkRepository.existsByLandmarkNmAndAddress(landmarkNm.trim(), address)) {
                         failCount++;
                         errors.add((i + 1) + "행: 이미 등록된 랜드마크 - " + landmarkNm);
                         continue;
                     }
+
+                    /*Landmark landmark = new Landmark();*/
+                    landmark.setLandmarkNm(landmarkNm.trim());
+                    landmark.setAddress(address);
 
                     landmarkList.add(landmark);
                     successCount++;

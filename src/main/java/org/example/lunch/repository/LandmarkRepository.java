@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface LandmarkRepository extends JpaRepository<Landmark, Integer> {
     List<Landmark> findByUseYnOrderBySortOrd(String useYn);
-    boolean existsByLandmarkCd(String landmarkCd);
+    boolean existsByLandmarkNmAndAddress(String landmarkNm, String address);
     @Query("SELECT DISTINCT l.sidoNm FROM Landmark l WHERE l.useYn = 'Y' AND l.sidoNm IS NOT NULL ORDER BY l.sidoNm")
     List<String> findDistinctSidoNms();
 
