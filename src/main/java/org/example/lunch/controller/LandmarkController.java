@@ -88,6 +88,9 @@ public class LandmarkController {
                             landmark.setSidoCd(geoInfo.getOrDefault("sido_cd", ""));
                             landmark.setGugunCd(geoInfo.getOrDefault("gugun_cd", ""));
                             landmark.setDongCd(geoInfo.getOrDefault("dong_cd", ""));
+                            landmark.setSidoNm(geoInfo.getOrDefault("sido_nm", ""));
+                            landmark.setGugunNm(geoInfo.getOrDefault("gugun_nm", ""));
+                            landmark.setDongNm(geoInfo.getOrDefault("dong_nm", ""));
                         }
                     }
 
@@ -159,6 +162,9 @@ public class LandmarkController {
                     landmark.setSidoCd(geoInfo.getOrDefault("sido_cd", ""));
                     landmark.setGugunCd(geoInfo.getOrDefault("gugun_cd", ""));
                     landmark.setDongCd(geoInfo.getOrDefault("dong_cd", ""));
+                    landmark.setSidoNm(geoInfo.getOrDefault("sido_nm", ""));
+                    landmark.setGugunNm(geoInfo.getOrDefault("gugun_nm", ""));
+                    landmark.setDongNm(geoInfo.getOrDefault("dong_nm", ""));
                 }
             }
             landmark.setUseYn("Y");
@@ -173,5 +179,40 @@ public class LandmarkController {
             result.put("message", "등록 실패: " + e.getMessage());
         }
         return ResponseEntity.ok(result);
+    }
+    /**
+     * 랜드마크가 존재하는 시도 목록
+     * GET /api/landmarks/sidos
+     */
+    @GetMapping("/sidos")
+    public List<String> getSidos() {
+        return landmarkRepository.findDistinctSidoNms();
+    }
+
+    /**
+     * 특정 시도 내 랜드마크가 존재하는 시군구 목록
+     * GET /api/landmarks/guguns?sidoCd=11
+     */
+    @GetMapping("/guguns")
+    public List<Map<String, String>> getGuguns(@RequestParam String sidoNm) {
+        List<Object[]> list = landmarkRepository.findDistinctGugunsBySidoNm(sidoNm);
+        List<Map<String, String>> result = new java.util.ArrayList<>();
+        for (Object[] row : list) {
+            Map<String, String> map = new java.util.HashMap<>();
+            map.put("gugunCd", (String) row[0]);
+            map.put("gugunNm", (String) row[1]);
+            result.add(map);
+        }
+        return result;
+    }
+
+
+    /**
+     * 특정 시군구 내 랜드마크 목록
+     * GET /api/landmarks/filter?gugunCd=11140
+     */
+    @GetMapping("/filter")
+    public List<Landmark> getByGugun(@RequestParam String gugunCd) {
+        return landmarkRepository.findByGugunCdAndUseYnOrderBySortOrd(gugunCd, "Y");
     }
 }

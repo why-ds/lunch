@@ -60,6 +60,11 @@ public class KakaoGeoService {
                     result.put("sido_cd", addr.has("b_code") ? addr.get("b_code").asText().substring(0, 2) : "");
                     result.put("gugun_cd", addr.has("b_code") ? addr.get("b_code").asText().substring(0, 5) : "");
                     result.put("dong_cd", addr.has("b_code") ? addr.get("b_code").asText() : "");
+
+                    // 시도명, 구군명, 동명 추가
+                    result.put("sido_nm", addr.has("region_1depth_name") ? addr.get("region_1depth_name").asText() : "");
+                    result.put("gugun_nm", addr.has("region_2depth_name") ? addr.get("region_2depth_name").asText() : "");
+                    result.put("dong_nm", addr.has("region_3depth_name") ? addr.get("region_3depth_name").asText() : "");
                 }
 
                 return result;

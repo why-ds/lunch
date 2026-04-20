@@ -40,6 +40,15 @@ public class Landmark {
     @Column(name = "dong_cd", length = 20)
     private String dongCd;
 
+    @Column(name = "sido_nm", length = 50)
+    private String sidoNm;
+
+    @Column(name = "gugun_nm", length = 50)
+    private String gugunNm;
+
+    @Column(name = "dong_nm", length = 50)
+    private String dongNm;
+
     @Column(name = "latitude")
     private Double latitude;
 

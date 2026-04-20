@@ -69,6 +69,9 @@ public class ShopExcelController {
                             shop.setSidoCd(geoInfo.getOrDefault("sido_cd", ""));
                             shop.setGugunCd(geoInfo.getOrDefault("gugun_cd", ""));
                             shop.setDongCd(geoInfo.getOrDefault("dong_cd", ""));
+                            shop.setSidoNm(geoInfo.getOrDefault("sido_nm", ""));
+                            shop.setGugunNm(geoInfo.getOrDefault("gugun_nm", ""));
+                            shop.setDongNm(geoInfo.getOrDefault("dong_nm", ""));
                         }
                     }
 
