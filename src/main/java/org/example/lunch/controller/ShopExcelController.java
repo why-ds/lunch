@@ -1,7 +1,11 @@
 package org.example.lunch.controller;
 
 import org.example.lunch.entity.Shop;
+import org.example.lunch.entity.SubwayStation;
+import org.example.lunch.entity.CommCodeDtl;
 import org.example.lunch.repository.ShopRepository;
+import org.example.lunch.repository.SubwayStationRepository;
+import org.example.lunch.repository.CommCodeDtlRepository;
 import org.example.lunch.service.KakaoGeoService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
@@ -15,6 +19,14 @@ import java.util.*;
 
 /**
  * 가게 엑셀 업로드 API
+ *
+ * 엑셀 컬럼 순서:
+ * 0: 가게명 (필수)
+ * 1: 호선 (텍스트: 1호선 / 코드도 가능)
+ * 2: 역명 (텍스트: 시청 / 코드도 가능: ST0132)
+ * 3: 음식종류 (텍스트: 한식 / 코드도 가능: F01)
+ * 4: 주소
+ * 5: 비고
  */
 @RestController
 @RequestMapping("/api/shops")
@@ -23,6 +35,8 @@ public class ShopExcelController {
 
     private final ShopRepository shopRepository;
     private final KakaoGeoService kakaoGeoService;
+    private final SubwayStationRepository subwayStationRepository;
+    private final CommCodeDtlRepository commCodeDtlRepository;
 
     @PostMapping("/upload")
     public ResponseEntity<Map<String, Object>> uploadExcel(@RequestParam("file") MultipartFile file) {
@@ -42,19 +56,55 @@ public class ShopExcelController {
                 if (row == null) continue;
 
                 try {
+                    // 0: 가게명 (필수)
                     String shopNm = getCellValue(row.getCell(0));
                     if (shopNm == null || shopNm.trim().isEmpty()) continue;
                     if (shopNm.startsWith("※")) continue;
 
-                    String foodTypeCd = getCellValue(row.getCell(2));
-                    if (foodTypeCd == null || foodTypeCd.trim().isEmpty()) continue;
+                    // 3: 음식종류 (필수)
+                    String foodTypeInput = getCellValue(row.getCell(3));
+                    if (foodTypeInput == null || foodTypeInput.trim().isEmpty()) continue;
 
                     Shop shop = new Shop();
                     shop.setShopNm(shopNm.trim());
-                    shop.setStationCd(getCellValue(row.getCell(1)));
-                    shop.setFoodTypeCd(foodTypeCd);
 
-                    String address = getCellValue(row.getCell(3));
+                    // 1,2: 호선 + 역명 → 역코드 변환
+                    String lineInput = getCellValue(row.getCell(1));
+                    String stationInput = getCellValue(row.getCell(2));
+                    if (lineInput != null && stationInput != null
+                            && !lineInput.isEmpty() && !stationInput.isEmpty()) {
+                        if (stationInput.startsWith("ST")) {
+                            // 코드로 직접 입력
+                            shop.setStationCd(stationInput);
+                        } else {
+                            // 텍스트로 입력 (호선 + 역명)
+                            SubwayStation station = subwayStationRepository
+                                    .findByLineNmAndStationNm(lineInput.trim(), stationInput.trim());
+                            if (station != null) {
+                                shop.setStationCd(station.getStationCd());
+                            } else {
+                                errors.add((i + 1) + "행: 역을 찾을 수 없음 - " + lineInput + " " + stationInput);
+                            }
+                        }
+                    }
+
+                    // 3: 음식종류 코드 변환
+                    if (foodTypeInput.startsWith("F")) {
+                        shop.setFoodTypeCd(foodTypeInput);
+                    } else {
+                        CommCodeDtl foodCode = commCodeDtlRepository
+                                .findByGrpCdAndDtlNm("FOOD_TYPE", foodTypeInput.trim());
+                        if (foodCode != null) {
+                            shop.setFoodTypeCd(foodCode.getDtlCd());
+                        } else {
+                            failCount++;
+                            errors.add((i + 1) + "행: 음식종류를 찾을 수 없음 - " + foodTypeInput);
+                            continue;
+                        }
+                    }
+
+                    // 4: 주소 → 카카오 API로 좌표 + 시군구 자동 변환
+                    String address = getCellValue(row.getCell(4));
                     shop.setAddress(address);
 
                     if (address != null && !address.isEmpty()) {
@@ -75,7 +125,8 @@ public class ShopExcelController {
                         }
                     }
 
-                    shop.setRmk(getCellValue(row.getCell(4)));
+                    // 5: 비고
+                    shop.setRmk(getCellValue(row.getCell(5)));
                     shop.setCloseYn("N");
                     shop.setRegId("EXCEL_UPLOAD");
                     shop.setRegDt(java.time.LocalDateTime.now());

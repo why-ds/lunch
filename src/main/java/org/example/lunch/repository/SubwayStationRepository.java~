@@ -20,5 +20,4 @@ public interface SubwayStationRepository extends JpaRepository<SubwayStation, In
             "AND s.stationCd IN (SELECT DISTINCT sh.stationCd FROM Shop sh) " +
             "ORDER BY s.stationNm ASC")
     List<SubwayStation> findStationsByLineWithShops(@Param("lineNm") String lineNm);
-    SubwayStation findByLineNmAndStationNm(String lineNm, String stationNm);
 }

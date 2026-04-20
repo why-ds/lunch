@@ -13,4 +13,5 @@ public interface CommCodeDtlRepository extends JpaRepository<CommCodeDtl, Intege
      * 프론트엔드 셀렉트 박스 렌더링에 사용됩니다.
      */
     List<CommCodeDtl> findByGrpCdAndUseYnOrderByDtlCdAsc(String grpCd, String useYn);
+    CommCodeDtl findByGrpCdAndDtlNm(String grpCd, String dtlNm);
 }
