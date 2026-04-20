@@ -14,10 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * JWT 인증 필터
- * - 매 요청마다 Authorization 헤더에서 토큰 확인
- */
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
