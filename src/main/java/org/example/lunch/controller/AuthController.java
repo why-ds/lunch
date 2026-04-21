@@ -127,6 +127,8 @@ public class AuthController {
         user.setRole("USER");
         user.setUseYn("Y");
         user.setRegDt(LocalDateTime.now());
+        user.setPrivacyYn("Y");
+        user.setPrivacyDt(LocalDateTime.now());
 
         userRepository.save(user);
 

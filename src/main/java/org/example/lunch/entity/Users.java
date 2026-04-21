@@ -39,4 +39,10 @@ public class Users {
 
     @Column(name = "reg_dt", nullable = false)
     private LocalDateTime regDt;
+
+    @Column(name = "privacy_yn", nullable = false, length = 1)
+    private String privacyYn = "N";
+
+    @Column(name = "privacy_dt")
+    private LocalDateTime privacyDt;
 }
