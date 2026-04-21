@@ -43,6 +43,13 @@ public class AuthController {
             return ResponseEntity.badRequest().body(result);
         }
 
+        // 이메일 중복 체크
+        if (userRepository.findByEmail(email).isPresent()) {
+            result.put("success", false);
+            result.put("message", "이미 가입된 이메일입니다.");
+            return ResponseEntity.badRequest().body(result);
+        }
+
         try {
             emailService.sendVerifyCode(email);
             result.put("success", true);
@@ -83,14 +90,16 @@ public class AuthController {
         String nickname = request.get("nickname");
         String email = request.get("email");
 
-        if (userId == null || userId.trim().isEmpty()) {
+        // 아이디 검증 (4자 이상)
+        if (userId == null || userId.trim().length() < 4) {
             result.put("success", false);
-            result.put("message", "아이디를 입력해주세요.");
+            result.put("message", "아이디는 4자 이상이어야 합니다.");
             return ResponseEntity.badRequest().body(result);
         }
-        if (password == null || password.length() < 4) {
+        // 비밀번호 검증 (8자 이상 + 대소문자 + 숫자 + 특수문자)
+        if (password == null || !password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
             result.put("success", false);
-            result.put("message", "비밀번호는 4자 이상이어야 합니다.");
+            result.put("message", "비밀번호는 8자 이상, 대문자/소문자/숫자/특수문자를 모두 포함해야 합니다.");
             return ResponseEntity.badRequest().body(result);
         }
         if (nickname == null || nickname.trim().isEmpty()) {
