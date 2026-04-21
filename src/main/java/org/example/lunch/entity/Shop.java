@@ -21,7 +21,7 @@ public class Shop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shop_seq")
-    private Integer shopSeq;
+    private Long shopSeq;
 
     /** 가게명 */
     @Column(name = "shop_nm", nullable = false, length = 200)

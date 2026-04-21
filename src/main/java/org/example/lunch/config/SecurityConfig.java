@@ -34,6 +34,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/subway-stations/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/landmarks/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/codes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/user/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/user/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
