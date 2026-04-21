@@ -4,6 +4,7 @@ import org.example.lunch.config.JwtUtil;
 import org.example.lunch.entity.Users;
 import lombok.RequiredArgsConstructor;
 import org.example.lunch.repository.UsersRepository;
+import org.example.lunch.service.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +24,52 @@ public class AuthController {
     private final UsersRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EmailService emailService;
 
     /**
-     * 회원가입
+     * 이메일 인증코드 발송
+     * POST /api/auth/send-code
+     */
+    @PostMapping("/send-code")
+    public ResponseEntity<Map<String, Object>> sendCode(@RequestBody Map<String, String> request) {
+        Map<String, Object> result = new HashMap<>();
+        String email = request.get("email");
+
+        if (email == null || email.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "이메일을 입력해주세요.");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        try {
+            emailService.sendVerifyCode(email);
+            result.put("success", true);
+            result.put("message", "인증코드가 발송되었습니다.");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "메일 발송 실패: " + e.getMessage());
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 이메일 인증코드 확인
+     * POST /api/auth/verify-code
+     */
+    @PostMapping("/verify-code")
+    public ResponseEntity<Map<String, Object>> verifyCode(@RequestBody Map<String, String> request) {
+        Map<String, Object> result = new HashMap<>();
+        String email = request.get("email");
+        String code = request.get("code");
+
+        boolean verified = emailService.verifyCode(email, code);
+        result.put("success", verified);
+        result.put("message", verified ? "인증 완료!" : "인증코드가 올바르지 않거나 만료되었습니다.");
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 회원가입 (이메일 인증 필수)
      * POST /api/auth/signup
      */
     @PostMapping("/signup")
@@ -34,44 +78,50 @@ public class AuthController {
 
         String userId = request.get("userId");
         String password = request.get("password");
-        String userNm = request.get("userNm");
+        String nickname = request.get("nickname");
+        String email = request.get("email");
 
-        // 필수값 체크
         if (userId == null || userId.trim().isEmpty()) {
             result.put("success", false);
             result.put("message", "아이디를 입력해주세요.");
             return ResponseEntity.badRequest().body(result);
         }
-        if (password == null || password.trim().isEmpty()) {
+        if (password == null || password.length() < 4) {
             result.put("success", false);
-            result.put("message", "비밀번호를 입력해주세요.");
+            result.put("message", "비밀번호는 4자 이상이어야 합니다.");
             return ResponseEntity.badRequest().body(result);
         }
-        if (userNm == null || userNm.trim().isEmpty()) {
+        if (nickname == null || nickname.trim().isEmpty()) {
             result.put("success", false);
-            result.put("message", "이름을 입력해주세요.");
+            result.put("message", "닉네임을 입력해주세요.");
             return ResponseEntity.badRequest().body(result);
         }
-
-        // 아이디 중복 체크
+        if (email == null || email.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "이메일을 입력해주세요.");
+            return ResponseEntity.badRequest().body(result);
+        }
         if (userRepository.findByUserId(userId).isPresent()) {
             result.put("success", false);
             result.put("message", "이미 사용중인 아이디입니다.");
             return ResponseEntity.badRequest().body(result);
         }
 
-        // 비밀번호 길이 체크
-        if (password.length() < 4) {
+        // 이메일 인증 확인
+        boolean emailVerified = emailVerifyRepository
+                .findTopByEmailAndVerifiedOrderByRegDtDesc(email, "Y")
+                .isPresent();
+        if (!emailVerified) {
             result.put("success", false);
-            result.put("message", "비밀번호는 4자 이상이어야 합니다.");
+            result.put("message", "이메일 인증을 완료해주세요.");
             return ResponseEntity.badRequest().body(result);
         }
 
-        // 사용자 생성
         Users user = new Users();
         user.setUserId(userId.trim());
         user.setPassword(passwordEncoder.encode(password));
-        user.setUserNm(userNm.trim());
+        user.setNickname(nickname.trim());
+        user.setEmail(email.trim());
         user.setRole("USER");
         user.setUseYn("Y");
         user.setRegDt(LocalDateTime.now());
@@ -120,7 +170,7 @@ public class AuthController {
         result.put("success", true);
         result.put("token", token);
         result.put("userId", user.getUserId());
-        result.put("userNm", user.getUserNm());
+        result.put("userNm", user.getNickname());
         result.put("role", user.getRole());
 
         return ResponseEntity.ok(result);
@@ -143,7 +193,7 @@ public class AuthController {
         Users admin = new Users();
         admin.setUserId("admin");
         admin.setPassword(passwordEncoder.encode("admin123"));
-        admin.setUserNm("관리자");
+        admin.getNickname("관리자");
         admin.setRole("ADMIN");
         admin.setUseYn("Y");
         admin.setRegDt(LocalDateTime.now());
