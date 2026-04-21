@@ -25,6 +25,78 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     /**
+     * 회원가입
+     * POST /api/auth/signup
+     */
+    @PostMapping("/signup")
+    public ResponseEntity<Map<String, Object>> signup(@RequestBody Map<String, String> request) {
+        Map<String, Object> result = new HashMap<>();
+
+        String userId = request.get("userId");
+        String password = request.get("password");
+        String userNm = request.get("userNm");
+
+        // 필수값 체크
+        if (userId == null || userId.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "아이디를 입력해주세요.");
+            return ResponseEntity.badRequest().body(result);
+        }
+        if (password == null || password.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "비밀번호를 입력해주세요.");
+            return ResponseEntity.badRequest().body(result);
+        }
+        if (userNm == null || userNm.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "이름을 입력해주세요.");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 아이디 중복 체크
+        if (userRepository.findByUserId(userId).isPresent()) {
+            result.put("success", false);
+            result.put("message", "이미 사용중인 아이디입니다.");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 비밀번호 길이 체크
+        if (password.length() < 4) {
+            result.put("success", false);
+            result.put("message", "비밀번호는 4자 이상이어야 합니다.");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 사용자 생성
+        Users user = new Users();
+        user.setUserId(userId.trim());
+        user.setPassword(passwordEncoder.encode(password));
+        user.setUserNm(userNm.trim());
+        user.setRole("USER");
+        user.setUseYn("Y");
+        user.setRegDt(LocalDateTime.now());
+
+        userRepository.save(user);
+
+        result.put("success", true);
+        result.put("message", "회원가입 완료! 로그인해주세요.");
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 아이디 중복 체크
+     * GET /api/auth/check?userId=test
+     */
+    @GetMapping("/check")
+    public ResponseEntity<Map<String, Object>> checkUserId(@RequestParam String userId) {
+        Map<String, Object> result = new HashMap<>();
+        boolean exists = userRepository.findByUserId(userId).isPresent();
+        result.put("exists", exists);
+        result.put("message", exists ? "이미 사용중인 아이디입니다." : "사용 가능한 아이디입니다.");
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * 로그인
      * POST /api/auth/login
      */
