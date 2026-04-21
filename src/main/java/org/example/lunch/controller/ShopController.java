@@ -20,12 +20,15 @@ public class ShopController {
     private final KakaoGeoService kakaoGeoService;
 
     @GetMapping
-    public ResponseEntity<List<Shop>> getShops(@RequestParam(required = false) String stationCd) {
-        // [수정] 파라미터 이름을 areaCd에서 stationCd로 변경
-        if (stationCd != null && !stationCd.trim().isEmpty()) {
-            return ResponseEntity.ok(shopRepository.findByStationCd(stationCd.trim()));
+    public List<Shop> getShops(
+            @RequestParam(required = false) String stationCd,
+            @RequestParam(required = false) String foodTypeCd) {
+        if (stationCd != null && foodTypeCd != null) {
+            return shopRepository.findByStationCdAndFoodTypeCd(stationCd, foodTypeCd);
+        } else if (stationCd != null) {
+            return shopRepository.findByStationCd(stationCd);
         }
-        return ResponseEntity.ok(shopRepository.findAll());
+        return shopRepository.findAll();
     }
     /**
      * 랜드마크 반경 검색
@@ -35,7 +38,11 @@ public class ShopController {
     public List<Shop> getNearbyShops(
             @RequestParam Double lat,
             @RequestParam Double lng,
-            @RequestParam(defaultValue = "500") int radius) {
+            @RequestParam(defaultValue = "500") int radius,
+            @RequestParam(required = false) String foodTypeCd) {
+        if (foodTypeCd != null && !foodTypeCd.isEmpty()) {
+            return shopRepository.findNearbyShopsByFoodType(lat, lng, radius, foodTypeCd);
+        }
         return shopRepository.findNearbyShops(lat, lng, radius);
     }
     /**
