@@ -3,6 +3,7 @@ package org.example.lunch.controller;
 import org.example.lunch.config.JwtUtil;
 import org.example.lunch.entity.Users;
 import lombok.RequiredArgsConstructor;
+import org.example.lunch.repository.EmailVerifyRepository;
 import org.example.lunch.repository.UsersRepository;
 import org.example.lunch.service.EmailService;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final EmailVerifyRepository emailVerifyRepository;
 
     /**
      * 이메일 인증코드 발송
@@ -193,7 +195,7 @@ public class AuthController {
         Users admin = new Users();
         admin.setUserId("admin");
         admin.setPassword(passwordEncoder.encode("admin123"));
-        admin.getNickname("관리자");
+        admin.setNickname("관리자");
         admin.setRole("ADMIN");
         admin.setUseYn("Y");
         admin.setRegDt(LocalDateTime.now());
