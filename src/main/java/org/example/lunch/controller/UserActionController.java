@@ -186,4 +186,20 @@ public class UserActionController {
                 .map(UserBlacklist::getShopSeq)
                 .collect(Collectors.toList());
     }
+    /**
+     * 내 정보 조회
+     * GET /api/user/profile
+     */
+    @GetMapping("/profile")
+    public ResponseEntity<Map<String, Object>> getProfile(Authentication auth) {
+        Map<String, Object> result = new HashMap<>();
+        String userId = auth.getName();
+        usersRepository.findByUserId(userId).ifPresent(user -> {
+            result.put("userId", user.getUserId());
+            result.put("nickname", user.getNickname());
+            result.put("email", user.getEmail());
+            result.put("regDt", user.getRegDt().toString());
+        });
+        return ResponseEntity.ok(result);
+    }
 }
