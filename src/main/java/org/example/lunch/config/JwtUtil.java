@@ -17,7 +17,7 @@ public class JwtUtil {
 
     // 비밀키 (32자 이상)
     private static final String SECRET = "lunch-app-secret-key-must-be-32-chars!!";
-    private static final long EXPIRATION = 1000 * 60 * 60 * 24; // 24시간
+    private static final long EXPIRATION = 1000 * 60 * 60; // 24시간
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
     /** 토큰 생성 */
