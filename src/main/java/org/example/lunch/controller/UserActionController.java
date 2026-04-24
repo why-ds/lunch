@@ -278,4 +278,38 @@ public class UserActionController {
 
         return result;
     }
+    /**
+     * 닉네임 수정
+     * PUT /api/user/nickname
+     */
+    @PutMapping("/nickname")
+    public ResponseEntity<Map<String, Object>> updateNickname(@RequestBody Map<String, String> request, Authentication auth) {
+        Map<String, Object> result = new HashMap<>();
+        String newNickname = request.get("nickname");
+
+        if (newNickname == null || newNickname.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "닉네임을 입력해주세요.");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 중복 체크
+        if (usersRepository.findByNickname(newNickname.trim()).isPresent()) {
+            result.put("success", false);
+            result.put("message", "이미 사용중인 닉네임입니다.");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        String userId = auth.getName();
+        usersRepository.findByUserId(userId).ifPresent(user -> {
+            user.setNickname(newNickname.trim());
+            usersRepository.save(user);
+        });
+
+        // localStorage도 업데이트하도록 새 닉네임 반환
+        result.put("success", true);
+        result.put("message", "닉네임이 변경되었습니다.");
+        result.put("nickname", newNickname.trim());
+        return ResponseEntity.ok(result);
+    }
 }

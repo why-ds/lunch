@@ -128,6 +128,13 @@ public class AuthController {
             return ResponseEntity.badRequest().body(result);
         }
 
+        // 닉네임 중복 체크
+        if (userRepository.findByNickname(nickname).isPresent()) {
+            result.put("success", false);
+            result.put("message", "이미 사용중인 닉네임입니다.");
+            return ResponseEntity.badRequest().body(result);
+        }
+
         Users user = new Users();
         user.setUserId(userId.trim());
         user.setPassword(passwordEncoder.encode(password));
@@ -215,6 +222,18 @@ public class AuthController {
 
         result.put("success", true);
         result.put("message", "admin 계정 생성 완료 (비밀번호: admin123)");
+        return ResponseEntity.ok(result);
+    }
+    /**
+     * 닉네임 중복 체크
+     * GET /api/auth/check-nickname?nickname=홍길동
+     */
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Map<String, Object>> checkNickname(@RequestParam String nickname) {
+        Map<String, Object> result = new HashMap<>();
+        boolean exists = userRepository.findByNickname(nickname).isPresent();
+        result.put("exists", exists);
+        result.put("message", exists ? "이미 사용중인 닉네임입니다." : "사용 가능한 닉네임입니다.");
         return ResponseEntity.ok(result);
     }
 }
