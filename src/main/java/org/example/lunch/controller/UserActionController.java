@@ -242,4 +242,40 @@ public class UserActionController {
 
         return result;
     }
+    /**
+     * 전체 가게 목록 + 블랙리스트 여부 (블랙리스트 우선 정렬)
+     * GET /api/user/shops-with-blacklist
+     */
+    @GetMapping("/shops-with-blacklist")
+    public List<Map<String, Object>> getShopsWithBlacklist(Authentication auth) {
+        Long userSeq = getUserSeq(auth);
+        List<Shop> allShops = shopRepository.findAll();
+
+        List<Long> blackShopSeqs = userSeq != null
+                ? blacklistRepository.findByUserSeq(userSeq).stream()
+                .map(UserBlacklist::getShopSeq).collect(Collectors.toList())
+                : List.of();
+
+        List<Map<String, Object>> result = allShops.stream().map(shop -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("shopSeq", shop.getShopSeq());
+            map.put("shopNm", shop.getShopNm());
+            map.put("address", shop.getAddress());
+            map.put("rmk", shop.getRmk());
+            map.put("foodTypeCd", shop.getFoodTypeCd());
+            map.put("stationCd", shop.getStationCd());
+            map.put("isBlacklisted", blackShopSeqs.contains(shop.getShopSeq()));
+            return map;
+        }).collect(Collectors.toList());
+
+        result.sort((a, b) -> {
+            boolean aBlack = (boolean) a.get("isBlacklisted");
+            boolean bBlack = (boolean) b.get("isBlacklisted");
+            if (aBlack && !bBlack) return -1;
+            if (!aBlack && bBlack) return 1;
+            return ((String) a.get("shopNm")).compareTo((String) b.get("shopNm"));
+        });
+
+        return result;
+    }
 }
