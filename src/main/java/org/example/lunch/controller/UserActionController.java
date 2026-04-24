@@ -202,4 +202,44 @@ public class UserActionController {
         });
         return ResponseEntity.ok(result);
     }
+
+    /**
+     * 전체 가게 목록 + 즐겨찾기 여부 (즐겨찾기 우선 정렬)
+     * GET /api/user/shops-with-favorite
+     */
+    @GetMapping("/shops-with-favorite")
+    public List<Map<String, Object>> getShopsWithFavorite(Authentication auth) {
+        Long userSeq = getUserSeq(auth);
+        List<Shop> allShops = shopRepository.findAll();
+
+        // 즐겨찾기 shopSeq 목록
+        List<Long> favShopSeqs = userSeq != null
+                ? favoriteRepository.findByUserSeq(userSeq).stream()
+                .map(UserFavorite::getShopSeq).collect(Collectors.toList())
+                : List.of();
+
+        // 가게 목록 + 즐겨찾기 여부
+        List<Map<String, Object>> result = allShops.stream().map(shop -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("shopSeq", shop.getShopSeq());
+            map.put("shopNm", shop.getShopNm());
+            map.put("address", shop.getAddress());
+            map.put("rmk", shop.getRmk());
+            map.put("foodTypeCd", shop.getFoodTypeCd());
+            map.put("stationCd", shop.getStationCd());
+            map.put("isFavorite", favShopSeqs.contains(shop.getShopSeq()));
+            return map;
+        }).collect(Collectors.toList());
+
+        // 즐겨찾기 우선 정렬
+        result.sort((a, b) -> {
+            boolean aFav = (boolean) a.get("isFavorite");
+            boolean bFav = (boolean) b.get("isFavorite");
+            if (aFav && !bFav) return -1;
+            if (!aFav && bFav) return 1;
+            return ((String) a.get("shopNm")).compareTo((String) b.get("shopNm"));
+        });
+
+        return result;
+    }
 }
